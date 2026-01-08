@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Culture Buffs | Library</title>
+    <style>
+        /* --- STYLES (CSS) --- */
+        :root {
+            --bg-color: #f4f4f4; 
+            --text-color: #1a1a1a; 
+            --accent-color: #333;
+            /* Sans-serif font for Modernist/Clean look */
+            --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        header {
+            margin-bottom: 60px;
+            border-bottom: 2px solid var(--text-color);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-family: var(--font-main);
+            font-weight: 700; 
+            font-size: 2.5rem;
+            margin: 0;
+            letter-spacing: -1px; 
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.6;
+            margin-bottom: 5px;
+            display: block;
+            font-weight: 600;
+        }
+
+        /* Collection List Styles */
+        .collection-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .collection-item {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: opacity 0.2s ease;
+        }
+
+        .collection-item:hover {
+            opacity: 0.6;
+        }
+
+        .collection-link {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            font-weight: 500;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .status.active {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .status.soon {
+            background-color: #e0e0e0;
+            color: #888;
+        }
+
+        /* Footer with cross-link */
+        footer {
+            margin-top: 100px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .cross-link-text {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .cross-link-btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border: 1px solid var(--text-color);
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .cross-link-btn:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <span class="subtitle">Culture Buffs Organization</span>
+            <h1>Library & Reading Room</h1>
+        </header>
+
+        <ul class="collection-list">
+            
+            <li class="collection-item">
+                <a href="new-hollywood.html" class="collection-link">
+                    <span>01. Cinema Legends: New Hollywood</span>
+                    <span class="status active">Open</span>
+                </a>
+            </li>
+
+            <li class="collection-item">
+                <div class="collection-link" style="cursor: default;">
+                    <span style="opacity: 0.4;">02. Architecture & Design</span>
+                    <span class="status soon">Soon</span>
+                </div>
+            </li>
+
+            <li class="collection-item">
+                <div class="collection-link" style="cursor: default;">
+                    <span style="opacity: 0.4;">03. Coming Soon...</span>
+                    <span class="status soon">Soon</span>
+                </div>
+            </li>
+
+            <li class="collection-item">
+                <div class="collection-link" style="cursor: default;">
+                    <span style="opacity: 0.4;">04. Coming Soon...</span>
+                    <span class="status soon">Soon</span>
+                </div>
+            </li>
+
+            <li class="collection-item">
+                <div class="collection-link" style="cursor: default;">
+                    <span style="opacity: 0.4;">05. Coming Soon...</span>
+                    <span class="status soon">Soon</span>
+                </div>
+            </li>
+
+        </ul>
+
+        <footer>
+            <span class="cross-link-text">Looking for Music Playlists?</span>
+            <a href="https://culturebuffs.github.io/playlists/" class="cross-link-btn">
+                Go to Music →
+            </a>
+        </footer>
+    </div>
+
+</body>
+</html>
