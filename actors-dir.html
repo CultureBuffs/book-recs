@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Book Recommendations</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Outfit for display, Inter for sans-serif body text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Apply custom fonts using @layer base for Tailwind's processing */
+        @layer base {
+            html {
+                font-family: 'Inter', sans-serif;
+            }
+            h1, h2, h3, h4, h5, h6 {
+                font-family: 'Outfit', sans-serif;
+            }
+        }
+        /* Custom Scrollbar for a more premium feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; /* light blue-gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* slate-300 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* slate-400 */
+        }
+    </style>
+    <script>
+        // Extend Tailwind CSS configuration for custom fonts and colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-bg': '#fcfcfc', // Very light, almost white background
+                        'text-dark': '#1e293b',  // Darker slate for headings
+                        'text-medium': '#334155', // Medium slate for body text
+                        'accent-button': '#ef4444', // Vibrant red for buttons
+                        'accent-button-hover': '#dc2626', // Darker red for button hover
+                        'card-border': '#e2e8f0', // Light border for cards
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-primary-bg text-text-medium antialiased min-h-screen flex flex-col justify-between">
+    <div class="container mx-auto px-4 py-8 md:py-12 flex-grow">
+        <header class="text-center mb-10 md:mb-16">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold text-text-dark leading-tight tracking-tight relative pb-4">
+                Your Personalized Book Recommendations
+                <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-accent-button rounded-full"></span>
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-2">
+                Carefully curated selections just for you, blending insightful biographies with cinematic masterpieces that resonate with your interests.
+            </p>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            <!-- Book Card 1 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out p-6 md:p-8 border border-card-border flex flex-col">
+                <h3 class="text-2xl font-display font-semibold text-text-dark mb-3 leading-snug">
+                    Jack: A Life of Jack Nicholson by Patrick McGilligan
+                </h3>
+                <p class="text-gray-700 leading-relaxed mb-4 flex-grow">
+                    A comprehensive biography chronicling the life and career of legendary actor Jack Nicholson.
+                </p>
+                <p class="text-sm text-gray-500 italic mb-6">
+                    <span class="font-medium text-text-dark">Recommendation Insight:</span> This biography is recommended because you expressed an interest in personalities such as Jack Nicholson.
+                </p>
+                <a href="https://www.amazon.com/s?k=Jack:+A+Life+of+Jack+Nicholson+by+Patrick+McGilligan" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex justify-center items-center px-6 py-3 rounded-lg bg-accent-button text-white font-semibold text-lg hover:bg-accent-button-hover transition-colors duration-200 ease-in-out self-start shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Purchase on Amazon
+                </a>
+            </div>
+
+            <!-- Book Card 2 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out p-6 md:p-8 border border-card-border flex flex-col">
+                <h3 class="text-2xl font-display font-semibold text-text-dark mb-3 leading-snug">
+                    Songs My Mother Taught Me by Marlon Brando
+                </h3>
+                <p class="text-gray-700 leading-relaxed mb-4 flex-grow">
+                    Marlon Brando's candid autobiography reflecting on his tumultuous life, career, and personal philosophies.
+                </p>
+                <p class="text-sm text-gray-500 italic mb-6">
+                    <span class="font-medium text-text-dark">Recommendation Insight:</span> This autobiography is recommended as you enjoyed Al Pacino's autobiography and are interested in the lives of major film personalities.
+                </p>
+                <a href="https://www.amazon.com/s?k=Songs+My+Mother+Taught+Me+by+Marlon+Brando" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex justify-center items-center px-6 py-3 rounded-lg bg-accent-button text-white font-semibold text-lg hover:bg-accent-button-hover transition-colors duration-200 ease-in-out self-start shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Purchase on Amazon
+                </a>
+            </div>
+
+            <!-- Book Card 3 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out p-6 md:p-8 border border-card-border flex flex-col">
+                <h3 class="text-2xl font-display font-semibold text-text-dark mb-3 leading-snug">
+                    Stanley Kubrick: A Biography by Vincent LoBrutto
+                </h3>
+                <p class="text-gray-700 leading-relaxed mb-4 flex-grow">
+                    An in-depth biography exploring the meticulous filmmaking process and personal life of visionary director Stanley Kubrick.
+                </p>
+                <p class="text-sm text-gray-500 italic mb-6">
+                    <span class="font-medium text-text-dark">Recommendation Insight:</span> This biography is recommended because you explicitly mentioned an interest in personalities such as Stanley Kubrick.
+                </p>
+                <a href="https://www.amazon.com/s?k=Stanley+Kubrick:+A+Biography+by+Vincent+LoBrutto" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex justify-center items-center px-6 py-3 rounded-lg bg-accent-button text-white font-semibold text-lg hover:bg-accent-button-hover transition-colors duration-200 ease-in-out self-start shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Purchase on Amazon
+                </a>
+            </div>
+
+            <!-- Book Card 4 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out p-6 md:p-8 border border-card-border flex flex-col">
+                <h3 class="text-2xl font-display font-semibold text-text-dark mb-3 leading-snug">
+                    De Niro: A Life by Shawn Levy
+                </h3>
+                <p class="text-gray-700 leading-relaxed mb-4 flex-grow">
+                    A detailed biographical account of Robert De Niro's journey from his early life to his iconic acting career.
+                </p>
+                <p class="text-sm text-gray-500 italic mb-6">
+                    <span class="font-medium text-text-dark">Recommendation Insight:</span> This biography is recommended given your enjoyment of Al Pacino's autobiography and general interest in legendary film personalities.
+                </p>
+                <a href="https://www.amazon.com/s?k=De+Niro:+A+Life+by+Shawn+Levy" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex justify-center items-center px-6 py-3 rounded-lg bg-accent-button text-white font-semibold text-lg hover:bg-accent-button-hover transition-colors duration-200 ease-in-out self-start shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Purchase on Amazon
+                </a>
+            </div>
+
+            <!-- Book Card 5 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out p-6 md:p-8 border border-card-border flex flex-col">
+                <h3 class="text-2xl font-display font-semibold text-text-dark mb-3 leading-snug">
+                    Scorsese on Scorsese by Martin Scorsese and Michael Henry Wilson
+                </h3>
+                <p class="text-gray-700 leading-relaxed mb-4 flex-grow">
+                    Martin Scorsese discusses his films, influences, and directing philosophy in this insightful interview-based book.
+                </p>
+                <p class="text-sm text-gray-500 italic mb-6">
+                    <span class="font-medium text-text-dark">Recommendation Insight:</span> This book is recommended due to your interest in personalities like Stanley Kubrick (a director) and legendary figures associated with iconic actors like Al Pacino.
+                </p>
+                <a href="https://www.amazon.com/s?k=Scorsese+on+Scorsese+by+Martin+Scorsese+and+Michael+Henry+Wilson" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex justify-center items-center px-6 py-3 rounded-lg bg-accent-button text-white font-semibold text-lg hover:bg-accent-button-hover transition-colors duration-200 ease-in-out self-start shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Purchase on Amazon
+                </a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
