@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Needle Park: Visual Repository</title>
+    <style>
+        body { background: #050505; color: #666; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 50px; }
+        .header { border-bottom: 1px solid #1a1a1a; margin-bottom: 50px; padding-bottom: 20px; display: flex; justify-content: space-between; align-items: baseline; }
+        h1 { color: #eee; font-weight: 300; letter-spacing: 3px; text-transform: uppercase; font-size: 1.2em; margin: 0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        .item { background: #0c0c0c; border: 1px solid #111; padding: 12px; position: relative; transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .item:hover { border-color: #333; transform: translateY(-3px); }
+        .item.selected { border-color: #ffcc00; background: #0f0f00; }
+        img { width: 100%; height: auto; display: block; filter: brightness(75%); transition: 0.4s; }
+        .item:hover img { filter: grayscale(0%) brightness(100%); }
+        .tc { margin-top: 15px; font-family: 'Courier New', monospace; color: #ffcc00; cursor: pointer; font-size: 1.1em; text-align: center; letter-spacing: 1px; }
+        .fav-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); color: #333; border: 1px solid #222; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; font-size: 20px; transition: 0.3s; }
+        .item.selected .fav-btn { color: #ffcc00; border-color: #ffcc00; }
+        #selection-panel { position: fixed; bottom: 30px; right: 30px; width: 300px; background: #0a0a0a; border: 1px solid #ffcc00; padding: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.9); display: none; z-index: 100; }
+        button#copy-btn { background: #ffcc00; color: #000; border: none; padding: 12px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 15px; text-transform: uppercase; font-size: 0.75em; letter-spacing: 1px; }
+        #fav-codes { font-family: monospace; font-size: 0.8em; color: #ddd; max-height: 120px; overflow-y: auto; margin-top: 12px; border-top: 1px solid #222; padding-top: 12px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Panic in Needle Park <span style="color: #222;">//</span> Visual Archive</h1>
+    <div style="font-size: 0.7em; letter-spacing: 2px; text-transform: uppercase;">CLICK TIMECODE TO COPY | STAR TO COLLECT</div>
+</div>
+
+<div class="grid" id="main-grid"></div>
+
+<div id="selection-panel">
+    <div style="font-size: 0.65em; color: #ffcc00; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;">Montage List:</div>
+    <div id="fav-codes"></div>
+    <button id="copy-btn" onclick="copyFullList()">Copy for LosslessCut</button>
+</div>
+
+<script>
+    const favorites = new Set();
+    const interval = 20;
+
+    // INSERT YOUR EXTRACTED IDs HERE
+   const fileIds = [
+    "1cqI-ULzEtR4UqJKE0f5qB7L3-mNOy3Kf", // frame_00001.jpg
+    "1g7XICg_q4K6O7MiXFOawSITStCQmkDkc", // frame_00002.jpg
+    "12SmG4DJvEiF7gJpg-lXNWHK9sAWw2ar9", // frame_00003.jpg
+    "1f-6ra_PKY06kFzi5nuwSFu6TbZfOtLve", // frame_00004.jpg
+    "1OEdZU4TiJ5NI-eW5w8Q5GTBlJfnhhzE5", // frame_00005.jpg
+    "1rYaotmC3Pf_rodmAfVM50yzXhSOntmn3", // frame_00006.jpg
+    "1T53TnuDuLMWjgHFLNDdeXnAt_Gmm9-ow", // frame_00007.jpg
+    "1dWabGGo422TLyxLOHJ9d4pzixNyN8D3Q", // frame_00008.jpg
+    "15mdkGCIA2ZIYMlRVBU1NX6b9pdRw4vww", // frame_00009.jpg
+    "16_3FnOlCGEsvPEwrJrRkQLSm3fws2H4_", // frame_00010.jpg
+    "1Mdgtv7qmDsLEEzGkMd39HpZU6pb-iU6p", // frame_0011.jpg
+    "1Q-3pJCpDeSYhgIyT9Kq9cBJkrvtoIHTt", // frame_0012.jpg
+    "1ERhidirTQQMXGIk6w4LTSOtja7FtFV4X", // frame_0013.jpg
+    "1hmDEPGn0Yaq4fXSJdjtIz5uKa3KkrY7q", // frame_0014.jpg
+    "1x-tSW7HlKjgmIB3LgLh6OWcmbizknrwx", // frame_0015.jpg
+    "129BXkk23JB2g5tQr_ZqxKU_gGVEd6sjr", // frame_0016.jpg
+    "1q_SaPrme5_yRp7LTYC49Ci5jI7kCfLp7", // frame_0017.jpg
+    "1SkC7OS2hwh6uBmyHV8DSdeOA7K7kvPiX", // frame_0018.jpg
+    "1vLThAu3xGQ5z1TPzPGec-_Oys1eMmCOa", // frame_0019.jpg
+    "1W-uRI0BAsvT6VP2Ay3mOtBHC26Z_-zzs", // frame_0020.jpg
+    "1EhNnggIs6-w6wcccWha9u2STVgKun8-d", // frame_0021.jpg
+    "1gOGe2AuZPmD43RneGnCbieRVApNjrbF0", // frame_0022.jpg
+    "1nXDcQ4U6rw02VdMQky5TzebwRLfbuPXG", // frame_0023.jpg
+    "1wSiOMSqm0LqBLI0TYWANPb5qRvYngQdB", // frame_0024.jpg
+    "12oIovQ3ra4tqNKE9trZFY-ziwltUS56f", // frame_0025.jpg
+    "1o0LYdI0Zk4hVj2FF-1_qySPNniNVaRNl", // frame_0026.jpg
+    "1kKqaEw1YILuTvRwYVlR-dl3QdB9Gh377", // frame_0027.jpg
+    "1JGQh4NFm6mYd43rP8UM_-eK1MkfzhjcL", // frame_0028.jpg
+    "1JxV9WejVsbllvMERRmdEoW2JZaw94DPN", // frame_0029.jpg
+    "1tFpIsr8FXz2PIGmbMBVEQkAUP7u7zCks", // frame_0030.jpg
+    "14EUMF-3sMnJZNKwi8Sdd-Y24VV_J41tA", // frame_0031.jpg
+    "1zkRKkK4Or61Ku50FZ14WlByl7jasH8Kw", // frame_0032.jpg
+    "16QbEaqVHdsN5CY-vL0MhevJtuwCqrpyO", // frame_0033.jpg
+    "1pAiZSC_k_wvM5q1izTR1KiUaYJv9iDLH", // frame_0034.jpg
+    "1UVh6fG-xh1_567bhNRp1QhATDmNQwpq7", // frame_0035.jpg
+    "1-6LmLp9gBoFDWDnMSOTORwatS5e3l3im", // frame_0036.jpg
+    "1lV-wfc3c7RW4jChuD3UUwG025LYg6q8o", // frame_0037.jpg
+    "1x_SGAKeHWw7YgBPahYU8fDrujqXLSOQt", // frame_0038.jpg
+    "1Bm1eIiJtxL78l0P6inyguiaIw3GaboqV", // frame_0039.jpg
+    "11zRXZhjJDTV7LaSlk8MbVR8UkV4GQcFl", // frame_0040.jpg
+    "1Yafkb4nD7iv3G-Nudh1o5Maw6Fv6gHS8", // frame_0041.jpg
+    "1y1mFaSyOZVaTqGQiE62VMwsitIy4sLXu", // frame_0042.jpg
+    "1q0eAdX9Pl55oFROw8XG2QqMiLV_X8rdb", // frame_0043.jpg
+    "1WVXEVXRASI4PEK-aMuu2kTWQEGXXmf_h", // frame_0044.jpg
+    "1KULYEzjZilLajvCgNXFi5ZYOgsBylXrN", // frame_0045.jpg
+    "1byMceidr_Dt11F2N2HmwtwortXLEhjR7", // frame_0046.jpg
+    "1w2h5cod9mm5KWYqrNgCl0cwNBlHQAnAP", // frame_0047.jpg
+    "16i_6Z8sRTxPj7eEx7-ylGKSiTlJuhxJR", // frame_0048.jpg
+    "1GC1tyoUFQoAzKyN-iFa5ES02XmEjWkHC", // frame_0049.jpg
+    "1CUZX9_OeCy6cL8OieA1HtePRogc-La71", // frame_0050.jpg
+    "1bM3VrqOhUg8MYw1XzNXzyhYFp38I1Vzf", // frame_0051.jpg
+    "1oSBkdJCpeS852w_hB7jPDtsGEZtN4pt6", // frame_0052.jpg
+    "1d8YJjpAcRxez5Dly_KWL63gt1c3dw2yl", // frame_0053.jpg
+    "1tduQAQV-pI46e5s4o1rpHDo4XBXb97GF", // frame_0054.jpg
+    "1ECvEKjpI1Pmg8abxQA_OpjcvUK5q3MSB", // frame_0055.jpg
+    "14G7FkRucJYmBcSqQQd5lFViOISIUrgpJ", // frame_0056.jpg
+    "1jEhKm7X_oEHZkd8p59G45UUygTovgIwP", // frame_0057.jpg
+    "15QfHNgZcIrmkw-bqdEoLSipJ8a_dHaMg", // frame_0058.jpg
+    "1nr9FKoVc7Al0lhjcIxgjh48zLHcKs94X", // frame_0059.jpg
+    "1JvUOKGGzI234bTN1I-1pid6Gf0i1h2Hn", // frame_0060.jpg
+    "1sbDNmNXg3UmMQ8yXsGeERqQXRbhUQ1It", // frame_0061.jpg
+    "12S3jXbCH2QbPPMThsnKA_iRugJptCCqX", // frame_0062.jpg
+    "10Da_cSZggYZn0V2op4ow2-Z8EUZMUFHb", // frame_0063.jpg
+    "1KAA07KiUkq7w6Wc9CzUSg8IRWC_K5suw", // frame_0064.jpg
+    "1a_2i24OgVYatCeEoiMmiEVP-_mw37mec", // frame_0065.jpg
+    "1gPnBNdDc5UInjVDvAjb-i4V8m188CyYB", // frame_0066.jpg
+    "1hfKCBZrO9Zp_N4nKx_RH4imqP2zcliZ1", // frame_0067.jpg
+    "1hoxTOokq725UJIiZltmgJbzkVX2z87IT", // frame_0068.jpg
+    "1UFT_T8DMzyEV2lcibchc5taXwHjU5yfO", // frame_0069.jpg
+    "1g5jPJ8qOoMBcW47qG1Dv9HPQQECyX0cB", // frame_0070.jpg
+    "1HXHDMXUMulNPOYLp_bSfnPdW0-n9p93t", // frame_0071.jpg
+    "1UUufvl-T3VmamwFCRUUWh4qD8slz-8e5", // frame_0072.jpg
+    "1V0z-fN4wHXtErEYrCIWnaUBjfY6mYcBk", // frame_0073.jpg
+    "1y2mCl2V8IbGjQ5Yk2kPXFvGzQRly23PJ", // frame_0074.jpg
+    "1NPZ975kr5pgyh0GAc7-6v7ETzfL1RYVw", // frame_0075.jpg
+    "1quCa63WH8DVSdroH4x_IoQiO2yfFbPNu", // frame_0076.jpg
+    "1Aa6xYM0IOTF3iyGWv0CXY0lwxrcWCRm6", // frame_0077.jpg
+    "1TvxrKGwBQZT1UpWo0lbD_4DhIgvxEZxL", // frame_0078.jpg
+    "1nUOFEApOiwx0Wg3F0lJU_F83Jg973AMF", // frame_0079.jpg
+    "1Nda11TzAuNZZ4F54dvU40gCSuFAbgSiN", // frame_0080.jpg
+    "1RMDjQwGhr6MNYTd3VZ-25qu1FcLVbEEl", // frame_0081.jpg
+    "1Pw-znD0lBrrhSeP3_9YJDnyWd3nXf6TJ", // frame_0082.jpg
+    "1jGIWrkDET64ebjR_LKuDK1lgHmyzeqCK", // frame_0083.jpg
+    "1L6f_Stuu9Znv98wWi7HshY0hIzTxmjUm", // frame_0084.jpg
+    "12OKCuqW2PlYRyqQJVzxKOsnb47e9SXxj", // frame_0085.jpg
+    "103dowuIABGFMeOWmuucmmXU0wE-LW_36", // frame_0086.jpg
+    "1aWKBsnOZUS0pH7M4-H9SI_qR4nSQMHk-", // frame_0087.jpg
+    "1GcyUB-fCzSRWcijrW5ECJWPiY_Xknumf", // frame_0088.jpg
+    "1EbfSemo3Sz6h4WH-mr7KvU12UBqcnQrU", // frame_0089.jpg
+    "1j6hrNJjSLMrjtO53SxJOKOwFAXVac7cB", // frame_0090.jpg
+    "1OUjuydoF8KMDqwiHrlDV-tpYDPkPAshI", // frame_0091.jpg
+    "1eFihaWbAnBgd5PbGqzPWa9bPY8OVGH5A", // frame_0092.jpg
+    "12VRAioH5blil8sHzQL04KSb1ScWFjcXE", // frame_0093.jpg
+    "1s4D52WaHPmxNmeEK3YzVf7THMTuYjfH_", // frame_0094.jpg
+    "1C3hBJLrRawWLK7NG5519FxZ0ryXd573B", // frame_0095.jpg
+    "1y17uFcd9ZLik4S1u55b0hpe9o2oRKrtm", // frame_0096.jpg
+    "1fDdGLOzKpUnk_8CIiSYavEQWbVJFFUrz", // frame_0097.jpg
+    "1vxwB_CpHFdAarssC8cF8pcpEKEPTYS9x", // frame_0098.jpg
+    "1loi1lGo_dar5zGwt48H5BBS_sOb9GPEY", // frame_0099.jpg
+    "1r-TCctLt5-PR5CVwyzAAgd6IxvTfcrwQ", // frame_0100.jpg
+    "1qah-N2MOLpNNNveE5R_PFZiP4YhSyDpv", // frame_0101.jpg
+    "1T9hcuRAKAFZ5W0AQkv4y5H4dl-SAzns1", // frame_0102.jpg
+    "16sY0dG6ZZyqQ8fxsnOVQqDvFi2_nCl-T", // frame_0103.jpg
+    "10ofs_RC5uMuXGSMm3EkPu7lgEWsX_YA9", // frame_0104.jpg
+    "1KkaqZ0YYwnBSLcmDhVUm_e2Gslsv9oIh", // frame_0105.jpg
+    "17-9Gni3WUAFjEsTCKGIC3420LVUxRpSs", // frame_0106.jpg
+    "1fFFpMzM4ndtyWmlzUsTJeZkiJdFbEkAu", // frame_0107.jpg
+    "1CGcEcSX8RDVUZMHKEuG3tqLy1ut6s_Ew", // frame_0108.jpg
+    "12A6esKRiLO5Am00esnX9wiYwYS5JreO-", // frame_0109.jpg
+    "1tgq9Lh70GOI9DPy1RYv3y6iTHkdFEOIi", // frame_0110.jpg
+    "1ittEpWUFbLFF-2AzP94GD17TzVdFPNAZ", // frame_0111.jpg
+    "1CjLrNrx3LC9WrXXj6l-zPo4-7BN6bMQv", // frame_0112.jpg
+    "10y8qWmD99SQYdp1Ypm4TUrXG8iYCqRi0", // frame_0113.jpg
+    "1uz7idtiHJYsPDMBCTnHekccm6SMF7rMO", // frame_0114.jpg
+    "1nmju95tnbKo4tQgZM51CAMrD2z5K9jZV", // frame_0115.jpg
+    "16tgLxxD-1qNPiYvuXgE-ByeaGmP-8A1V", // frame_0116.jpg
+    "1vgQof2h0nEYoGsFc6ATqqYucYe3eUFYV", // frame_0117.jpg
+    "1jTOMsiLw8VaLDYoUVA6O9Q6rvt3ve-qw", // frame_0118.jpg
+    "1nEx-1A-YBm-vSOLgRTrlP5lmdFnKaKx9", // frame_0119.jpg
+    "1tDPmonG-CX53Z7hqG0Mgf-BFt10Z3Ctl", // frame_0120.jpg
+    "1JkS2IRV1Os-54emofbMGC3DnvIGvwyu0", // frame_0121.jpg
+    "1nLQ_8OnYaGG4KENsokC8PMI9LCm3ZFem", // frame_0122.jpg
+    "1UDcHXLeSpm4uzppl75b4fNVR-bZ_86Mb", // frame_0123.jpg
+    "1phddkGHCSOsg7IrlGD-2CBaelAvo12-j", // frame_0124.jpg
+    "1f0Vc8I_X7caxilnmAMF9Q1pdAoaLW5VF", // frame_0125.jpg
+    "1fmEEKQJDMy_SwnVunxQPt8O8zVSR_tz3", // frame_0126.jpg
+    "1ov4SlqWi15cy7LAl90LaMFHziIT-zZHV", // frame_0127.jpg
+    "1I7WIbmwPuyR9sbWGNyi0ZSDVRwfp2jg_", // frame_0128.jpg
+    "1l-NlwnMTAeix3M1pWuDJxHV2AvF98ep8", // frame_0129.jpg
+    "1EQho8zO3OKX2Eu1OnqMw4DLSc1iwY_T8", // frame_0130.jpg
+    "1WNLDSYphhyYoTKDhKHvlBFUGs9mDvQHf", // frame_0131.jpg
+    "1tQ8TjHgZhP2L3wFRYTJzBDC6mzEPVlVl", // frame_0132.jpg
+    "17Ci-uII_gFbmKPCLO0fIcKKomcCv9ere", // frame_0133.jpg
+    "1TvXpa9Jfmlv3Ze8Rk6234xbBLJQ3y0et", // frame_0134.jpg
+    "1kflTmWaeNYqEnLV8N3Rj25taMfFN8pkA", // frame_0135.jpg
+    "1SZXTDfeCojH4MJEoer9jNNyXt6ANBvVW", // frame_0136.jpg
+    "1lfouu2eeF2N0FuLRFlzibZCJdVJ-lo1c", // frame_0137.jpg
+    "1M8wg66yk8yblCLGH_aWVDjvx1T4qkA1H", // frame_0138.jpg
+    "1dGHu64T2iC1z10l779SLFoxPY7iI7h7p", // frame_0139.jpg
+    "1iAUAFgzVROmOreGo4T0Cbb9DXMN6u8Fb", // frame_0140.jpg
+    "17RdYWX2fFJJokCNx5kC1ZPT3Z58oPcbt", // frame_0141.jpg
+    "1bIFryRE-wZUuJT_EcSanin7EtuN19x5p", // frame_0142.jpg
+    "1iel1yxHAo6xCdjC8vQxxbsE2hz2p1gw0", // frame_0143.jpg
+    "10BpdL1AbBI-E0iykXuJTZN4xMYBc4vS9", // frame_0144.jpg
+    "106afzLQdi3omA7qKOIYXrivKZ4BOjcx5", // frame_0145.jpg
+    "1hL0cZkcQv2fvkhOnwmjVPCMshCTLKtvO", // frame_0146.jpg
+    "1wVHiYt7c6pDskKSrInAoopyutHx4ohGL", // frame_0147.jpg
+    "1Xqe7Phj1mpML1Qw9w1vaFprXessWD2x6", // frame_0148.jpg
+    "1L6o5Q5Dopn9C0EWoYqFy_0n0UA8nllnd", // frame_0149.jpg
+    "1Nr5ili7xkl429SA0-mntr66jYmwWW59W", // frame_0150.jpg
+    "1ADSJmYVvHWuv0rLFXpbz0EkQuC3WS8D-", // frame_0151.jpg
+    "1t1y11kjjR5fbqXzlgkzrIWs2K9J3bZh8", // frame_0152.jpg
+    "1JyJKjY-puGfBqvltZpnkJWBJcQ6wMwHX", // frame_0153.jpg
+    "1jaBPXF8Dp6tb5fMgDc7h3u9zjv-n1QrB", // frame_0154.jpg
+    "16v261dkMtO2E4fpll8VtfnDjcMhsAfD6", // frame_0155.jpg
+    "1-hk4N7h0ZutL7rSU9EOlrS9e3wL2FElQ", // frame_0156.jpg
+    "1bNG-RdLGwOW1f5Ku7xVnFe7cg_Cxr7uL", // frame_0157.jpg
+    "1b0Bi97WhWyLS7Dt0vrKNpdKbQb6Xw-fY", // frame_0158.jpg
+    "1g46Ua4whXYd3kHaaM7esKvQSIVXjol1U", // frame_0159.jpg
+    "1THoT5N_Jd5To2rfHPHH9qwbJiJgyzM8h", // frame_0160.jpg
+    "15Gkdu-66ik2TAijGV1XdtHPnLHEkx43T", // frame_0161.jpg
+    "1CC0j53O8ZeCv3F13mCO80fFZUHJAojVI", // frame_0162.jpg
+    "1jZxx1O_vWbPjmetJHkGr-SF6zMXkw99r", // frame_0163.jpg
+    "1zuFa-08bDX14X7hEpC_QkgGpB6g15A-h", // frame_0164.jpg
+    "1ppOfgJhSEtrHnsjCdvvYnjQlakHk57kc", // frame_0165.jpg
+    "15Y6plw1Vh08m9yCze80QieL5WRo-1wUO", // frame_0166.jpg
+    "1XRNLBNBJZ-bDnQcKUUbvWOihzF2GVHgC", // frame_0167.jpg
+    "12wNeM-o1WcA0C2dy7oWW6kh9XN5SKTCS", // frame_0168.jpg
+    "1VIrvJ080KkFoYPvpCM-YralAO45UrG2Y", // frame_0169.jpg
+    "1tJUHxOEQel04IFypLg6ObVPAP-v3eCjW", // frame_0170.jpg
+    "1hz4ER3_I19CIa4XATEqKPb3zM_zx3lqA", // frame_0171.jpg
+    "17o5m1Ax41mAuzumNLXiZbsIvtTB9A-dL", // frame_0172.jpg
+    "1f2q_sDBEI1xDdgHzk3g27ysbBBT3wJvh", // frame_0173.jpg
+    "1hR8vjjmVUC59FwpLI0e4ZgCTx-9E62t5", // frame_0174.jpg
+    "1bDwQUwRmProAAaewaoCYVZUrtTYsw2JN", // frame_0175.jpg
+    "1u_FHOm-y0dbS0SwfPNUzktGPBdGGGrKh", // frame_0176.jpg
+    "19mbZ2bzIsdSlKWL-I0FqRHbNRy3AsILL", // frame_0177.jpg
+    "1WvPVStS0HJ3UHLUl0fD4G0hQ91Vf2rOk", // frame_0178.jpg
+    "1twGEfu0HD2kt05whkY6hatsYK0Hs0DRx", // frame_0179.jpg
+    "1G-RZz6lYPtXLwbwBRLaUSU7JAiDnCh4a", // frame_0180.jpg
+    "1haaajBCdFbDuDyGWodBajeV-_QnUBwBJ", // frame_0181.jpg
+    "1KpvuYis2XkeRvfigM0NkI8vnBOij3i29", // frame_0182.jpg
+    "1SdBm3hZlmwSa-PaXoxFCCCGUSDlkc_Kd", // frame_0183.jpg
+    "1esyUyclM-snwKhFFAFJX-F52VVzMpyE_", // frame_0184.jpg
+    "13x3E5enLs-Hbv8g81YuM2tfpzqKe_v49", // frame_0185.jpg
+    "1yZ0dzPyphr1wwC9RKWOj_WUHQHq8L1gY", // frame_0186.jpg
+    "1HK4NOJacxPMwnyTGveYbQ3lh3wKinnQk", // frame_0187.jpg
+    "1QyMe_ZHAh_2yn9SWB2LsgpD4fgM7aGvz", // frame_0188.jpg
+    "1hW5u8-XrEdOZEZFBtdFSzA-ow0lOsKu6", // frame_0189.jpg
+    "1dFNAKU6CQ591au_wQhzdOHr6cOnKIfw2", // frame_0190.jpg
+    "17ULN_Xd751drNKtTiq7e8vsCva6x70Zm", // frame_0191.jpg
+    "1BVERXSx4QN4dmmWJv9HSnGbRaYa6Xy78", // frame_0192.jpg
+    "1CQW9u9ytGofef-M3q6Vdr28oP6DnaseC", // frame_0193.jpg
+    "1C94kRFjNHi8pyc2760Ym93huFkieejQO", // frame_0194.jpg
+    "1MdUBgBdusqXZpX12Ybzp7q-7UHp39eYT", // frame_0195.jpg
+    "157MeaS1KmJVzWrloBYc43omHqX3liRnS", // frame_0196.jpg
+    "1fuASCaB8uT3JQFh1v5YDzdoSFdXpToo5", // frame_0197.jpg
+    "1Wz-H782EpuWRKxynoBaM7Dqd4xEYVZMC", // frame_0198.jpg
+    "1Tpuv0EEG1HTjtmUHw8-x9j9tZjfOooQK", // frame_0199.jpg
+    "1XazufkcNLQ48kRUHni57t1cmOVW5GyIM", // frame_0200.jpg
+    "1VKuVyoP1fEBxTvXUTUn8VfmKeZOsmfzP", // frame_0201.jpg
+    "1jA8LJ-ofHF0ulwH9A1lzZDYGLTzipUpr", // frame_0202.jpg
+    "1SYoSltgsV2i53pXA9jXbL91k45UCEl5V", // frame_0203.jpg
+    "1eXvsfRqjtZFgHQK_s1C0WKcrXjrzMy-B", // frame_0204.jpg
+    "1oSQ3pCi088v22gFSMx4kVneeXzWtX-87", // frame_0205.jpg
+    "1PSwQlG1iRm8W-lFNW6Qw4VzT-8BKI8Zl", // frame_0206.jpg
+    "1KyCIvxvyZFCcoGw_M6w00daUegB1T2qb", // frame_0207.jpg
+    "1KBR83-z1ZrNlMTJVjNoKepeBUQL2iS1t", // frame_0208.jpg
+    "1lvNUiUnmks21kZkTY6zR_F98dqHa_V11", // frame_0209.jpg
+    "1Zvdtcrc0DxQyRKTsd6VO4uPGDmAR2Wmi", // frame_0210.jpg
+    "16_F9AIbmH4jAB5780AeMc4dujivCbQq7", // frame_0211.jpg
+    "1ytI86RJEBQ7x2npXCo2aXTODOTbIfT10", // frame_0212.jpg
+    "1hTft13qN8TuMbnY180cpkNPgCf5BmAxH", // frame_0213.jpg
+    "1G9xcXszcNZvInZjxE370Q39jPnaL92aB", // frame_0214.jpg
+    "13RPC4HDNqdfrnv2bG95rK8YbDeKsHSkJ", // frame_0215.jpg
+    "1Xx89v2o4iyZLISbQnciUSz-B8Tiw6_LR", // frame_0216.jpg
+    "1jxH8zg8ZXYjVvCB-LipQJf4TYlDe9aH9", // frame_0217.jpg
+    "1ebhfdzngNenku2t181T0LhpL-TSsRPAt", // frame_0218.jpg
+    "1XXc9b19UcTEny2dAy5Qp4Xv0_Hvq4I_3", // frame_0219.jpg
+    "1T-6kvcOf-cwyCE52-sJ1bOwmQgUgSRI-", // frame_0220.jpg
+    "1o15s-5tJxmXH83I9-7vaurHrvuio3zZU", // frame_0221.jpg
+    "173aTkHxIH2pLCHMDOFcrIp-PLvgyIzRW", // frame_0222.jpg
+    "1-1qd8g_HdMKvq7oxVaeKLaBgNFv_6r5C", // frame_0223.jpg
+    "1AwdXK8dNx3qucoUsIbTN60BhLDuwRLHV", // frame_0224.jpg
+    "105SSTMVtfvM-89ZNpPZGLxgz-djbkkQL", // frame_0225.jpg
+    "1FuPtBiPahEd-hFU_aY1oriMGFPjXTEIw", // frame_0226.jpg
+    "1XNlfKHzpzUbzSBbiK6wX5IWJsrn-_5tJ", // frame_0227.jpg
+    "1kMm54KPpykycczCMRf5aTyvm-Tco8m6d", // frame_0228.jpg
+    "1lvGhcuXIh95HK01cZG0ICjLIxAneRAEe", // frame_0229.jpg
+    "1vPP1NnSGxbIJ_86b5h2klb88_upBipb2", // frame_0230.jpg
+    "15nCgJktlE7XD7YwdINwlfr35BC8b45hc", // frame_0231.jpg
+    "1KxcF-3sHGGlnV_bNDqgmrP_osVYv2Pns", // frame_0232.jpg
+    "17DYjMMCnqZpivZKachfZGYNQLSv8ubOU", // frame_0233.jpg
+    "1ZHhWjbV9L615y0seAPGZGZbdyihIKWOT", // frame_0234.jpg
+    "1cBFMMy_KhWc1u2Lzj7jv-sGnSxzBdZQj", // frame_0235.jpg
+    "1_ubt8pSzTGzheqrxPr4bXo4KcCIVqwcD", // frame_0236.jpg
+    "1wl8Tr0tVsPjBvUaNPUFiLVNJTgpdibZg", // frame_0237.jpg
+    "1JLiGOzZ-1xiin0R2k6gFa-aXMcWe4JIH", // frame_0238.jpg
+    "18m2yY471r4w-TelFCxCn6jAsbNUHDPWy", // frame_0239.jpg
+    "1dtQ1oIMIJgazLRTe4yCEuqlWbtNzy-Iv", // frame_0240.jpg
+    "1zT4yT0YiQJ0cUCmRepisu89qKqJDvTrn", // frame_0241.jpg
+    "1QbDr8mMb_fC04J4aeuDrbDzWj3VeWS6u", // frame_0242.jpg
+    "1KZxrKJyzZUIGVpf5SXmisvK2mIF9-QFk", // frame_0243.jpg
+    "1jjkzDzMgRr2COV6PhR7A13NOhVh9kS1d", // frame_0244.jpg
+    "184j2Im99Qml4RSYWvnamdpaWds0Rw3ew", // frame_0245.jpg
+    "1WVlcLasChlH0d04_C9TEhRy3Kp684QEC", // frame_0246.jpg
+    "1k7HZO9T8AqWdXfMPNchLJOzY1jOhQZac", // frame_0247.jpg
+    "1VrAfqNZrW8m_AC5sXPhhQYVT8P1NvxOy", // frame_0248.jpg
+    "1OI_KG9fhH7TA8HXqb9elMlD__4YZpAoq", // frame_0249.jpg
+    "1uHE5p2brZc72MqMYZpCyfSpopEBYjSYu", // frame_0250.jpg
+    "1t2pSU6ZD2ixmx7Uraesdicn1Bzpq3YjY", // frame_0251.jpg
+    "1r01kNAvuPkQDKqfgiudBz_--sXDmQHGI", // frame_0252.jpg
+    "1WeQ3E7UoCPyluHzfu989WtYkYN-I5Pg0", // frame_0253.jpg
+    "1CPox2jDH5X_ooQX8zUx6Raus2f0PvibS", // frame_0254.jpg
+    "1arWK72OtshvS27DCCqdoE0l4okEzMFgb", // frame_0255.jpg
+    "1GfrECdKMxmkd5K652GBvwwwkvApQ0bUM", // frame_0256.jpg
+    "1JkEYGDDEiLkAUHdeAghPi93Q5XWefy9y", // frame_0257.jpg
+    "1edcA8TeZqsb30PNO8Y6JBVexbQEycLnq", // frame_0258.jpg
+    "1Pfc9Kzeb1F8Ymm5cc1j2ZSMW5NYyBFaC", // frame_0259.jpg
+    "1ExL8S2Zr2q-3BZgHWrHWkVWd4-K0TVXU", // frame_0260.jpg
+    "1jA7Cr3VCH8SVYbLXgOXcY3GT9abJNR07", // frame_0261.jpg
+    "1T70AckYYf_Iha7PdB5DdO1okRr26H8ZK", // frame_0262.jpg
+    "1j5ZuO0QkPz3bAH95FSLIyW3oQa48Xfrt", // frame_0263.jpg
+    "1XVE82bLQcpSNvm8iMX-0R8ir94gqT6hg", // frame_0264.jpg
+    "1CtSnKwCbEtRyz7-2SL0c9L-Kr5U5QPwS", // frame_0265.jpg
+    "1RfLI4xUO-eaoHKnxm__zGitGLjncdwbg", // frame_0266.jpg
+    "1IesPJZf30TntR1DYQ1XAO_RL8kA1RtL_", // frame_0267.jpg
+    "1UEjQBgPUPpQhU9OFXCK1mVd6D3GOznD9", // frame_0268.jpg
+    "1fNi4rfl9Dq11vj_j20NhYw4PFfqCOM0p", // frame_0269.jpg
+    "1KhD10L69kzNZi1ViODZDec6PhWrs3Wgi", // frame_0270.jpg
+    "1eISmxZ7D0xyPtWDy_O4kE7Gl-h-FrL8F", // frame_0271.jpg
+    "1yZ80_yRNLgzLItLus9fEzX82nAs3FeQQ", // frame_0272.jpg
+    "1dGQgQZKZv7N1BxuxzngDm8Xrs_2culiJ", // frame_0273.jpg
+    "1_uyki5BptP6PRuhoLH3f-LRpintR1jqo", // frame_0274.jpg
+    "1rKh_OYxqGwJuWpnduV5zWTlNxbBfLBks", // frame_0275.jpg
+    "1ui4r6Zjo4-oSBTrXh0drNtKgwL3c1DOI", // frame_0276.jpg
+    "1O6Bo2MT2fNGqv5ksw3cWp3b6Hi82uH3O", // frame_0277.jpg
+    "15umLL8PVuOtFySpAzzdR-GR-XQ_Kkfjo", // frame_0278.jpg
+    "1sPbVqEhmOUNmgjtXwp5bK8dKrn7nkuZc", // frame_0279.jpg
+    "1ZL66C_zv1nu-emVM1R8YeGllMH16QMcy", // frame_0280.jpg
+    "1IU96jxyF58YD1sj_aVU7JaDcJ0iV9Ppk", // frame_0281.jpg
+    "1M2ZdkQ5oFRaoVUye9BGj8FR5WadGr5TX", // frame_0282.jpg
+    "1Yx4wMoVYiSA8gDHqK1tgY2Ij5OpWVBCA", // frame_0283.jpg
+    "1sxdVnJ2gy0ae-zbtGT7h9BmmmwzO7zoe", // frame_0284.jpg
+    "1S8XSa2KeR6Pc6JigJokx2KETiEzxjTZI", // frame_0285.jpg
+    "1oaInanC2KfY3_WflmOypDU3CpR74xlHv", // frame_0286.jpg
+    "1MrLwsO_nfmBJ-cF9hyJN5LX8SK-ZY_qv", // frame_0287.jpg
+    "1oXa7jwqqqekouJLEhsGiler-6fAFq9bg", // frame_0288.jpg
+    "1wCKexMgjB5b3_12tVCo9QHzwqbmXzYkw", // frame_0289.jpg
+    "1n7G2GfM7t1HaPQBxOYq7cyatsK9f_A5s", // frame_0290.jpg
+    "1AcCR6csM-fL_QlLxtBoyv9XErURTw8GY", // frame_0291.jpg
+    "1pWjyVk3-rIOHGMCoRahsX4oOCFWlwrsH", // frame_0292.jpg
+    "1IVblCNj7r1rp-YzghlgM-roSxu_cbhDv", // frame_0293.jpg
+    "1TfAKjUBrbl_Kh9MhoCloGASDOG07_PLr", // frame_0294.jpg
+    "1VYDRHI0lDgO_koy12feFqhTOeScL9nG-", // frame_0295.jpg
+    "15HhI9GFOSIyxMVFE29pzkVVaEZnzZ5wt", // frame_0296.jpg
+    "1UT9N_RvYUQ6FUOjUyaTLSOPBEjWtX1mg", // frame_0297.jpg
+    "12LwDiuLOagbVITzuQJ8Ym4e7dIfjULV2", // frame_0298.jpg
+    "1pTldwUIvAMq7Fr05GqmpZW4t1SyEqLPv", // frame_0299.jpg
+    "1c46YX-eso-oQYkjegNq-XLjJwUP3_msL", // frame_0300.jpg
+    "12GiGLt40LU18XWGxzY6qtq7Oyz3iI5mJ", // frame_0301.jpg
+    "1u5nb5uanrdRtfy-JTe3cXbBbcFC6xabm", // frame_0302.jpg
+    "1ljLPMzRapgot5JBKuTfkExNpOW9tDLNZ", // frame_0303.jpg
+    "1VzDx0GeGeweozNQkNeIgJhUzpHk7fyhW", // frame_0304.jpg
+    "1PeJ32-F_3F3hUdO2bo-Tkm7wj9R1z9Qv", // frame_0305.jpg
+    "1oa6fkkSFMV6W0hbdgdxPk1i5ta-HbQWG", // frame_0306.jpg
+    "1zG5o7krD5giFbBsmZTf-V2P_lGG2CJ4P", // frame_0307.jpg
+    "1OMVX5h_2zhvEaVJWw9V4bZuHBvWTBOwr", // frame_0308.jpg
+    "1Xyr5dylgSZjjBHEKE2wevpkkOAI4f0hw", // frame_0309.jpg
+    "1ZTqgZWJvDERjttKIDkToIu0tnl_dhnh1", // frame_0310.jpg
+    "1dnnEvJW2d7pZDcGrGLwzDQ4zrzrmTDgH", // frame_0311.jpg
+    "1krtLyeM_wxgrWwCNZgcZljQjXtTR4_MH", // frame_0312.jpg
+    "1cR42PKDK4tC4-g_hG05ayoHNkbvr_dYC", // frame_0313.jpg
+    "1EqWHZJ1RtJ8yQUSl63MF-njODChXBFgZ", // frame_0314.jpg
+    "1WKEVFmPKkl2z1fPOn-HQqoyVCh0yyKIC", // frame_0315.jpg
+    "1CESKCXRHd4K4Rorjn7ph4KuG0OQkysIw", // frame_0316.jpg
+    "1UuqtN3NLTGB2kwI1UJnoAHiadye24bTA", // frame_0317.jpg
+    "1a4_Or-WVn0tfQ_GNNlKd9B2ZyfOfhO8O", // frame_0318.jpg
+    "1Y455ipQiI2hCvLEU1cuiyMMoAU1waIHY", // frame_0319.jpg
+    "1N4iaCkgzkuThIT6PCUX3Jgson8Yv9ZZg", // frame_0320.jpg
+    "14cBGv5lZAb7tODk61yTs_BliBfa1ovqG", // frame_0321.jpg
+    "1ZuwJ_Ac2URl9kW04YlSfPk2td0oLoOVw", // frame_0322.jpg
+    "122WKyTBhEeSzW8uTQ9e-0SyYUEUyRh3J", // frame_0323.jpg
+    "1Du7fXP1QFuZklMQHf2zxrV5f2xOw8uWJ", // frame_0324.jpg
+    "12w3GxFBa9Zack63ajP6c-6-Tw5cXfOoi", // frame_0325.jpg
+    "1vThq_EAmTbUczfLjmT7-9dMd1KaLLmLo", // frame_0326.jpg
+    "1pil0kjZo-e5-tNwErflq9sXUrCJmyhH5", // frame_0327.jpg
+    "19nS8KHD3MRTyoHONQJ35PCJWaarvpbF1", // frame_0328.jpg
+    "1cfRvZE30YS3RRbGlMaxMBFAq3d5ZjlTB" // frame_0329.jpg
+];
+
+    function render() {
+        const grid = document.getElementById('main-grid');
+        fileIds.forEach((id, index) => {
+            const totalSec = index * interval;
+            const h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
+            const m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
+            const s = (totalSec % 60).toString().padStart(2, '0');
+            const tc = `${h}:${m}:${s}`;
+            
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.id = 'item-' + index;
+            const src = `https://lh3.googleusercontent.com/u/0/d/${id}`;
+            
+            div.innerHTML = `
+                <button class="fav-btn" onclick="toggleFav('${tc}', ${index})">★</button>
+                <img src="${src}" loading="lazy">
+                <div class="tc" onclick="copyToClipboard('${tc}')">${tc}</div>
+            `;
+            grid.appendChild(div);
+        });
+    }
+
+    function toggleFav(tc, index) {
+        const el = document.getElementById('item-' + index);
+        if (favorites.has(tc)) {
+            favorites.delete(tc);
+            el.classList.remove('selected');
+        } else {
+            favorites.add(tc);
+            el.classList.add('selected');
+        }
+        updatePanel();
+    }
+
+    function updatePanel() {
+        const panel = document.getElementById('selection-panel');
+        const display = document.getElementById('fav-codes');
+        if (favorites.size > 0) {
+            panel.style.display = 'block';
+            display.innerText = Array.from(favorites).sort().join(', ');
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text);
+    }
+
+    function copyFullList() {
+        const text = Array.from(favorites).sort().join(', ');
+        navigator.clipboard.writeText(text);
+        alert('Montage list copied to clipboard');
+    }
+
+    render();
+</script>
+
+</body>
+</html>
